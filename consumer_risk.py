@@ -8,7 +8,7 @@ consumer = KafkaConsumer(
     group_id='risk-consumer-group'
 )
 
-HIGH_AMOUNT_THRESHOLD = 1_000_000  # 100만원 이상 → 고액 거래로 표시 (실습용 간단 로직)
+HIGH_AMOUNT_THRESHOLD = 1_000_000  # 100만원 이상 → 고액 거래로 표시
 
 print("최종 Consumer 시작... (이상 거래 모니터링)")
 
