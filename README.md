@@ -48,7 +48,7 @@ source kafka-env/bin/activate
 pip install -r requirements.txt
 ```
 
-> 💡 **참고**: `requirements.txt`는 `kafka-python`이 아니라 `kafka-python-ng`를 사용합니다. 원조 `kafka-python`은 관리가 멈춰서 Python 3.12 이상에서 `ModuleNotFoundError: No module named 'kafka.vendor.six.moves'` 에러가 나기 때문에, 관리가 계속되고 있는 후속 프로젝트인 `kafka-python-ng`로 대체했습니다. 코드에서 `import` 하는 방식은 완전히 동일합니다 (`from kafka import KafkaProducer` 그대로).
+> 💡 **참고**: `requirements.txt`는 `kafka-python`이 아니라 `kafka-python-ng`를 사용해요. 원조 `kafka-python`은 관리가 멈춰서 Python 3.12 이상에서 `ModuleNotFoundError: No module named 'kafka.vendor.six.moves'` 에러가 나기 때문에, 관리가 계속되고 있는 후속 프로젝트인 `kafka-python-ng`로 대체했어요. 코드에서 `import` 하는 방식은 완전히 동일함 (`from kafka import KafkaProducer` 그대로).
 
 ---
 
@@ -91,7 +91,7 @@ python3 stream_processor.py
 - 정상 이벤트 → `risk-check-events`
 - 처리 실패 이벤트 → `transaction-dlq`
 
-📌 이 프로세서는 **Consumer이자 Producer** 역할을 동시에 한다.
+=> 여기서 스트림 프로세스는 **Consumer이자 Producer** 역할을 동시에 함!
 
 ### 4️⃣ 최종 Consumer 실행
 
@@ -125,3 +125,36 @@ docker exec kafka kafka-console-consumer \
 
 - 깨진 이벤트만 DLQ 토픽에 저장됨
 - 정상 이벤트는 포함되지 않음
+
+---
+
+## 4단계: 과제
+`stream_processor.py`에 **딱 한 줄**만 추가해서, 위험도 판단(`risk_level`)을 미리 계산해서 붙여보기!
+
+지금은 거래 정보에 `amount`(금액)만 들어있는데, 여기에 "이 거래가 위험한지 아닌지" 판단한 `risk_level` 필드를 추가해본다.
+### 과제 요구 사항
+
+`normalized` 딕셔너리를 만드는 곳에, 아래 조건으로 `risk_level` 필드를 한 줄 추가한다. (계좌 거래용, 카드 결제용 **두 군데 모두**)
+
+- `amount`가 100만원 이상이면 → `"high"`
+- 그 외에는 → `"low"`
+
+<details>
+<summary>힌트</summary>
+
+```python
+"risk_level": "high" if data["amount"] >= 1_000_000 else "low",
+```
+
+이 한 줄을 `normalized = {...}` 안에 끼워 넣으면 된다. `account-events`용, `card-events`용 블록 둘 다 똑같이 추가!
+
+</details>
+
+### 성공 조건
+
+- `stream_processor.py`가 에러 없이 실행된다
+- "변환된 데이터" 로그에 `risk_level` 필드(`"high"` 또는 `"low"`)가 보인다
+
+### 제출물
+1. 실습한 4개의 터미널 화면 동시에 띄우고 정상 실행되는 화면 캡처
+2. `stream_processor.py` 실행 화면 캡처 ("변환된 데이터"에 `risk_level` 필드가 보이도록)
